@@ -1,18 +1,24 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
-from .database import SessionLocal, engine
-from .models import Base
-from .services import get_wallet_info, save_wallet_info, get_recent_wallets
+from database import SessionLocal, engine
+from models import Base
+from services import get_wallet_info, save_wallet_info, get_recent_wallets
+import logging
+
+
+logging.basicConfig(filename='tron_app.log', level=logging.INFO)
+logging.info('start app')
 
 # Создание базовых таблиц
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-# Функция для получения сеанса базы данных
-
 
 def get_db() -> Session:
+    """
+    Функция для получения сеанса базы данных
+    """
     db = SessionLocal()
     try:
         yield db
@@ -20,17 +26,10 @@ def get_db() -> Session:
         db.close()
 
 
-@app.get("/wallet/{address}", response_model=Dict[str, Any])
-def read_wallet(address: str, db: Session = Depends(get_db)) -> Dict[str, Any]:
-    info = get_wallet_info(address)
-    save_wallet_info(db, address, info)
-    return info
-
-
 @app.post("/wallet/")
 async def create_wallet(address: str, db: Session = Depends(get_db)):
     wallet_info = get_wallet_info(address)
-    save_wallet_info(db, wallet_info)
+    save_wallet_info(db, address, wallet_info)
     return wallet_info
 
 

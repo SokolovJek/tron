@@ -1,13 +1,30 @@
+import logging
 from typing import Dict, Any
 from tronpy import Tron
 from sqlalchemy.orm import Session
-from .models import WalletInfo
+from models import WalletInfo
+from tronpy.exceptions import BadAddress
+import logging
+
 
 client = Tron()
 
+DEFAULT_INFO = {
+    'bandwidth': 0,
+    'energy': 0,
+    'balance': 0,
+}
 
 def get_wallet_info(address: str) -> Dict[str, Any]:
-    account = client.get_account(address)
+    try:
+        account = client.get_account(address)
+    except BadAddress:
+        logging.exception(f'BadAddress {address}')
+    except Exception:
+        logging.exception(f'Exception {address}')
+    finally:
+        account = DEFAULT_INFO
+        account["address"] = address
     return {
         "address": account['address'],
         "bandwidth": account['bandwidth'],
