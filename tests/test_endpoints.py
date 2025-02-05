@@ -46,7 +46,7 @@ def test_client(test_db):
 
 
 def test_create_wallet(test_client):
-    response = test_client.post("/wallet/", params={"address": "TXYZ12345"})
+    response = test_client.post("/wallets/", params={"address": "TXYZ12345"})
     assert response.status_code == 200
     assert response.json()["address"] == "TXYZ12345"
 

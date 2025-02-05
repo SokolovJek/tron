@@ -26,7 +26,7 @@ def get_db() -> Session:
         db.close()
 
 
-@app.post("/wallet/")
+@app.post("/wallets/")
 async def create_wallet(address: str, db: Session = Depends(get_db)):
     wallet_info = get_wallet_info(address)
     save_wallet_info(db, address, wallet_info)
